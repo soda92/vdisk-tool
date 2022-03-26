@@ -1,7 +1,10 @@
-from flask import Flask
 import subprocess
+from dataclasses import dataclass
+from typing import List
+from typing import Optional
+from fastapi import FastAPI
 
-app = Flask(__name__)
+from conf import *
 
 
 def get_out():
@@ -17,10 +20,34 @@ def get_out():
         return s[0].decode()
 
 
-@app.route("/")
-def hello_world():
-    return f"<pre>{get_out()}</pre>"
+@dataclass
+class disk:
+    name: str
+    size: str
 
 
-if __name__ == "__main__":
-    app.run(host="127.0.0.1", port=5002)
+import os
+
+
+def get_disks() -> List[disk]:
+    if not os.path.exists(path=path):
+        return []
+    arr = []
+    for i in os.listdir(path):
+        if i.endswith(".vhdx"):
+            name, size = i.split(".")[0].split("_")
+            arr.append(disk(name, size))
+    return arr
+
+
+app = FastAPI()
+
+
+@app.get("/")
+def read_root():
+    return {"Hello": "World"}
+
+
+@app.get("/items/{item_id}")
+def read_item(item_id: int, q: Optional[str] = None):
+    return {"item_id": item_id, "q": q}
