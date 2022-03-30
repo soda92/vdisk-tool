@@ -4,6 +4,18 @@ import shutil
 import math
 
 
+def get_system_encoding():
+    proc = subprocess.run("chcp.com", stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+    enc = proc.stdout.split(b":")[1].decode().strip()
+    if enc == "65001":
+        return "utf-8"
+    elif enc == "936":
+        return "gbk"
+
+
+ENCODING = get_system_encoding()
+
+
 def convert_size(size: str):
     size = size.lower()
     if size.endswith("gb"):
@@ -16,6 +28,7 @@ def delete_all():
     for file in os.listdir("D:\\vdisk"):
         if file.endswith("vhdx"):
             os.remove("D:\\vdisk\\" + file)
+
 
 def get_disks():
     disks = []
@@ -59,7 +72,7 @@ def create_disk(size: str) -> str | str:
         proc.stdin.write(b"exit\r\n")
         proc.stdin.flush()
         s = proc.communicate()
-        val = s[0].decode('gbk')
+        val = s[0].decode(ENCODING)
         if proc.poll() is None:
             proc.terminate()
         return val, None
@@ -80,7 +93,7 @@ def attach_disk(size: str) -> str | str:
         proc.stdin.write(b"exit\r\n")
         proc.stdin.flush()
         s = proc.communicate()
-        val = s[0].decode('gbk')
+        val = s[0].decode(ENCODING)
         if proc.poll() is None:
             proc.terminate()
         return val, None
@@ -99,7 +112,7 @@ def detach_disk(size: str) -> str | str:
         proc.stdin.write(b"exit\r\n")
         proc.stdin.flush()
         s = proc.communicate()
-        val = s[0].decode('gbk')
+        val = s[0].decode(ENCODING)
         if proc.poll() is None:
             proc.terminate()
         return val, None
